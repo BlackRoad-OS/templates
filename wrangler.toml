@@ -1,0 +1,122 @@
+# ⬛⬜🛣️ BlackRoad Agent Jobs Worker
+# Cloudflare Workers configuration for job scraping and self-healing orchestration
+
+name = "blackroad-agent-jobs"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Development settings
+[dev]
+port = 8787
+local_protocol = "http"
+
+# Durable Objects for stateful job management
+[[durable_objects.bindings]]
+name = "JOB_COORDINATOR"
+class_name = "JobCoordinator"
+
+[[durable_objects.bindings]]
+name = "REPO_SYNC"
+class_name = "RepoSyncManager"
+
+[[durable_objects.bindings]]
+name = "SELF_HEALER"
+class_name = "SelfHealer"
+
+# Durable Object migrations
+[[migrations]]
+tag = "v1"
+new_classes = ["JobCoordinator", "RepoSyncManager", "SelfHealer"]
+
+# KV Namespaces for caching and state
+[[kv_namespaces]]
+binding = "JOBS_CACHE"
+id = "jobs-cache-id"
+preview_id = "jobs-cache-preview"
+
+[[kv_namespaces]]
+binding = "REPO_STATE"
+id = "repo-state-id"
+preview_id = "repo-state-preview"
+
+# D1 Database for persistent job storage
+[[d1_databases]]
+binding = "DB"
+database_name = "blackroad-jobs"
+database_id = "blackroad-jobs-id"
+
+# Queue for async job processing
+[[queues.producers]]
+queue = "agent-jobs-queue"
+binding = "JOBS_QUEUE"
+
+[[queues.consumers]]
+queue = "agent-jobs-queue"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 5
+dead_letter_queue = "agent-jobs-dlq"
+
+# Dead letter queue for failed jobs
+[[queues.producers]]
+queue = "agent-jobs-dlq"
+binding = "DEAD_LETTER_QUEUE"
+
+# R2 Bucket for storing scraped data and artifacts
+[[r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "blackroad-artifacts"
+
+# Scheduled triggers for auto-updates and self-healing
+[triggers]
+crons = [
+  "*/5 * * * *",   # Every 5 mins: Health check & self-healing
+  "*/15 * * * *",  # Every 15 mins: Repo sync check
+  "0 * * * *",     # Every hour: Full reconciliation
+  "0 0 * * *"      # Daily: Cleanup and maintenance
+]
+
+# Environment variables
+[vars]
+ENVIRONMENT = "development"
+LOG_LEVEL = "debug"
+SELF_HEAL_ENABLED = "true"
+AUTO_UPDATE_ENABLED = "true"
+MAX_RETRY_ATTEMPTS = "5"
+RETRY_BACKOFF_MS = "1000"
+
+# Secrets (set via wrangler secret put)
+# GITHUB_TOKEN - GitHub API access
+# WEBHOOK_SECRET - Webhook signature verification
+# ANTHROPIC_API_KEY - Claude API for agent tasks
+
+# Staging environment
+[env.staging]
+name = "blackroad-agent-jobs-staging"
+vars = { ENVIRONMENT = "staging", LOG_LEVEL = "info" }
+
+[[env.staging.kv_namespaces]]
+binding = "JOBS_CACHE"
+id = "jobs-cache-staging-id"
+
+[[env.staging.kv_namespaces]]
+binding = "REPO_STATE"
+id = "repo-state-staging-id"
+
+# Production environment
+[env.production]
+name = "blackroad-agent-jobs-production"
+vars = { ENVIRONMENT = "production", LOG_LEVEL = "warn", SELF_HEAL_ENABLED = "true" }
+
+[[env.production.kv_namespaces]]
+binding = "JOBS_CACHE"
+id = "jobs-cache-production-id"
+
+[[env.production.kv_namespaces]]
+binding = "REPO_STATE"
+id = "repo-state-production-id"
+
+# Rate limiting
+[limits]
+cpu_ms = 50

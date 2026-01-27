@@ -1,0 +1,42 @@
+{
+  "name": "@blackroad-os/agent-jobs-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers for BlackRoad agent job scraping and self-healing task orchestration",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "tail": "wrangler tail",
+    "test": "vitest",
+    "test:ci": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "format": "prettier --write src/",
+    "db:migrate": "wrangler d1 migrations apply blackroad-jobs",
+    "db:migrate:local": "wrangler d1 migrations apply blackroad-jobs --local"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "blackroad",
+    "agent-jobs",
+    "scraping",
+    "self-healing"
+  ],
+  "author": "BlackRoad-OS",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "@types/node": "^20.10.0",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.0",
+    "wrangler": "^3.91.0"
+  },
+  "dependencies": {
+    "hono": "^4.6.0",
+    "zod": "^3.22.4"
+  }
+}
