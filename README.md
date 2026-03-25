@@ -1,244 +1,48 @@
-# ⬛⬜🛣️ BlackRoad Agent Jobs Worker
+<!-- BlackRoad SEO Enhanced -->
 
-Cloudflare Workers-based system for autonomous agent job orchestration, repository scraping, auto-updates, and self-healing capabilities.
+# templates
 
-## Overview
+> Part of **[BlackRoad OS](https://blackroad.io)** — Sovereign Computing for Everyone
 
-This system provides:
+[![BlackRoad OS](https://img.shields.io/badge/BlackRoad-OS-ff1d6c?style=for-the-badge)](https://blackroad.io)
+[![BlackRoad OS](https://img.shields.io/badge/Org-BlackRoad-OS-2979ff?style=for-the-badge)](https://github.com/BlackRoad-OS)
+[![License](https://img.shields.io/badge/License-Proprietary-f5a623?style=for-the-badge)](LICENSE)
 
-- **Job Orchestration**: Distributed job coordination with exactly-once execution guarantees
-- **Repository Scraping**: Automated scraping and syncing of BlackRoad-OS repositories
-- **Auto-Updates**: Webhook-triggered and scheduled repository synchronization
-- **Self-Healing**: Autonomous error detection, resolution, and escalation
-- **Cohesion Checking**: Cross-repository dependency tracking and drift detection
+**templates** is part of the **BlackRoad OS** ecosystem — a sovereign, distributed operating system built on edge computing, local AI, and mesh networking by **BlackRoad OS, Inc.**
 
-## Architecture
+## About BlackRoad OS
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Cloudflare Workers                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │    Hono      │  │   Webhooks   │  │  Scheduled   │         │
-│  │   Router     │◄─┤   Handler    │  │   Triggers   │         │
-│  └──────┬───────┘  └──────────────┘  └──────┬───────┘         │
-│         │                                    │                  │
-│         ▼                                    ▼                  │
-│  ┌─────────────────────────────────────────────────────┐       │
-│  │              Durable Objects                         │       │
-│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐      │       │
-│  │  │    Job     │ │   Repo     │ │   Self     │      │       │
-│  │  │Coordinator │ │SyncManager │ │  Healer    │      │       │
-│  │  └─────┬──────┘ └─────┬──────┘ └─────┬──────┘      │       │
-│  └────────│──────────────│──────────────│─────────────┘       │
-│           │              │              │                      │
-│           ▼              ▼              ▼                      │
-│  ┌─────────────────────────────────────────────────────┐       │
-│  │                 Storage Layer                        │       │
-│  │  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────────┐           │       │
-│  │  │ KV  │  │ D1  │  │ R2  │  │ Queues  │           │       │
-│  │  └─────┘  └─────┘  └─────┘  └─────────┘           │       │
-│  └─────────────────────────────────────────────────────┘       │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    BlackRoad-OS Repositories                    │
-│  ┌──────────────────┐  ┌──────────────────┐                    │
-│  │ prism-console    │  │ templates        │  ...               │
-│  └──────────────────┘  └──────────────────┘                    │
-└─────────────────────────────────────────────────────────────────┘
-```
+BlackRoad OS is a sovereign computing platform that runs AI locally on your own hardware. No cloud dependencies. No API keys. No surveillance. Built by [BlackRoad OS, Inc.](https://github.com/BlackRoad-OS-Inc), a Delaware C-Corp founded in 2025.
 
-## Features
+### Key Features
+- **Local AI** — Run LLMs on Raspberry Pi, Hailo-8, and commodity hardware
+- **Mesh Networking** — WireGuard VPN, NATS pub/sub, peer-to-peer communication
+- **Edge Computing** — 52 TOPS of AI acceleration across a Pi fleet
+- **Self-Hosted Everything** — Git, DNS, storage, CI/CD, chat — all sovereign
+- **Zero Cloud Dependencies** — Your data stays on your hardware
 
-### Job Orchestration
-- Priority-based job queue with configurable concurrency
-- Automatic retries with exponential backoff
-- Dead letter queue for failed jobs
-- Real-time job status tracking
+### The BlackRoad Ecosystem
+| Organization | Focus |
+|---|---|
+| [BlackRoad OS](https://github.com/BlackRoad-OS) | Core platform and applications |
+| [BlackRoad OS, Inc.](https://github.com/BlackRoad-OS-Inc) | Corporate and enterprise |
+| [BlackRoad AI](https://github.com/BlackRoad-AI) | Artificial intelligence and ML |
+| [BlackRoad Hardware](https://github.com/BlackRoad-Hardware) | Edge hardware and IoT |
+| [BlackRoad Security](https://github.com/BlackRoad-Security) | Cybersecurity and auditing |
+| [BlackRoad Quantum](https://github.com/BlackRoad-Quantum) | Quantum computing research |
+| [BlackRoad Agents](https://github.com/BlackRoad-Agents) | Autonomous AI agents |
+| [BlackRoad Network](https://github.com/BlackRoad-Network) | Mesh and distributed networking |
+| [BlackRoad Education](https://github.com/BlackRoad-Education) | Learning and tutoring platforms |
+| [BlackRoad Labs](https://github.com/BlackRoad-Labs) | Research and experiments |
+| [BlackRoad Cloud](https://github.com/BlackRoad-Cloud) | Self-hosted cloud infrastructure |
+| [BlackRoad Forge](https://github.com/BlackRoad-Forge) | Developer tools and utilities |
 
-### Repository Scraping
-- Configurable repository monitoring
-- Incremental sync (only changed files)
-- Dependency mapping across repositories
-- Template extraction and processing
-
-### Auto-Updates
-- GitHub webhook integration for push/PR/release events
-- Scheduled sync checks (configurable intervals)
-- Manual trigger endpoints
-- Cohesion validation on PRs
-
-### Self-Healing
-- Continuous health monitoring
-- Automatic error pattern recognition
-- Learning-based resolution strategies
-- Escalation for unresolvable issues
-
-## Quick Start
-
-### Prerequisites
-- Node.js 20+
-- Cloudflare account with Workers, D1, R2, and Queues enabled
-- GitHub token for API access
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/BlackRoad-OS/templates.git
-cd templates
-
-# Install dependencies
-npm install
-
-# Copy environment template
-cp .env.example .env
-# Edit .env with your values
-
-# Set up secrets
-wrangler secret put GITHUB_TOKEN
-wrangler secret put WEBHOOK_SECRET
-wrangler secret put ANTHROPIC_API_KEY
-
-# Run migrations
-npm run db:migrate:local
-
-# Start development server
-npm run dev
-```
-
-### Deployment
-
-```bash
-# Deploy to staging
-npm run deploy:staging
-
-# Deploy to production
-npm run deploy:production
-```
-
-## API Endpoints
-
-### Health
-- `GET /health` - Basic health check
-- `GET /health/detailed` - Detailed system status
-- `GET /health/live` - Liveness probe
-- `GET /health/ready` - Readiness probe
-- `POST /health/heal` - Trigger manual healing
-
-### Jobs
-- `POST /jobs/submit` - Submit a new job
-- `GET /jobs/status/:id` - Get job status
-- `GET /jobs/list` - List all jobs
-- `POST /jobs/cancel/:id` - Cancel a job
-- `GET /jobs/metrics` - Job processing metrics
-
-### Webhooks
-- `POST /webhooks/github` - GitHub webhook handler
-- `POST /webhooks/trigger-sync` - Manual sync trigger
-- `POST /webhooks/sync-all` - Sync all repositories
-
-### Admin
-- `GET /admin/config` - System configuration
-- `GET /admin/repos` - Repository sync status
-- `GET /admin/cohesion` - Cohesion check results
-- `POST /admin/reconcile` - Trigger reconciliation
-
-## Configuration
-
-### Tracked Repositories
-
-Edit `src/types/repos.ts` to configure monitored repositories:
-
-```typescript
-export const BLACKROAD_REPOS: RepoConfig[] = [
-  {
-    owner: 'BlackRoad-OS',
-    name: 'blackroad-prism-console',
-    branch: 'main',
-    paths: ['src/', 'lib/', 'config/'],
-    syncEnabled: true,
-    scrapeInterval: 15 * 60 * 1000 // 15 minutes
-  },
-  // ... more repos
-];
-```
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ENVIRONMENT` | Environment name | `development` |
-| `LOG_LEVEL` | Logging level | `debug` |
-| `SELF_HEAL_ENABLED` | Enable self-healing | `true` |
-| `AUTO_UPDATE_ENABLED` | Enable auto-updates | `true` |
-| `MAX_RETRY_ATTEMPTS` | Max job retries | `5` |
-| `RETRY_BACKOFF_MS` | Base backoff time | `1000` |
-
-### Secrets (via `wrangler secret put`)
-
-- `GITHUB_TOKEN` - GitHub API access token
-- `WEBHOOK_SECRET` - GitHub webhook signature secret
-- `ANTHROPIC_API_KEY` - Claude API key for agent tasks
-
-## Self-Healing System
-
-The self-healer monitors system health and automatically resolves issues:
-
-### Resolution Actions
-- **Retry**: Re-attempt failed operations with backoff
-- **Restart**: Trigger full re-sync of affected components
-- **Failover**: Switch to backup systems (multi-region)
-- **Escalate**: Alert for manual intervention
-- **Notify**: Send notifications without action
-
-### Resolution Patterns
-The system learns from past failures:
-
-```typescript
-{
-  errorPattern: 'timeout',
-  action: 'retry',
-  successRate: 0.8,
-  timesUsed: 150
-}
-```
-
-Patterns with higher success rates are preferred for similar errors.
-
-## Development
-
-```bash
-# Type checking
-npm run typecheck
-
-# Linting
-npm run lint
-
-# Run tests
-npm test
-
-# Format code
-npm run format
-```
-
-## Scheduled Tasks
-
-| Cron | Task | Description |
-|------|------|-------------|
-| `*/5 * * * *` | Health Check | Monitor system health |
-| `*/15 * * * *` | Repo Sync Check | Check for repos needing sync |
-| `0 * * * *` | Reconciliation | Full cohesion check |
-| `0 0 * * *` | Maintenance | Cleanup old data |
-
-## License
-
-MIT - BlackRoad-OS
+### Links
+- **Website**: [blackroad.io](https://blackroad.io)
+- **Documentation**: [docs.blackroad.io](https://docs.blackroad.io)
+- **Chat**: [chat.blackroad.io](https://chat.blackroad.io)
+- **Search**: [search.blackroad.io](https://search.blackroad.io)
 
 ---
 
-⬛⬜🛣️
+
